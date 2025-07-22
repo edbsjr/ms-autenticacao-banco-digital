@@ -2,7 +2,7 @@ package br.com.bancodigital.msautenticacao.domain.exception.errorcode;
 
 import org.springframework.http.HttpStatus;
 
-public enum AutenticacaoErrorCode {
+public enum AuthenticationErrorCode {
 
     // --- Códigos para Erros de Requisição Inválida (HTTP 400 Bad Request) ---
     // Geralmente indica que a entrada do cliente é inválida ou uma regra de negócio específica foi violada.
@@ -35,24 +35,24 @@ public enum AutenticacaoErrorCode {
     ERRO_INTERNO_SERVIDOR("AUTH-999", "Ocorreu um erro interno no servidor.", HttpStatus.INTERNAL_SERVER_ERROR);
 
 
-    private final String codigo; // Nome da variável para o código do erro
-    private final String mensagem; // Nome da variável para a mensagem descritiva do erro
+    private final String code; // Nome da variável para o código do erro
+    private final String message; // Nome da variável para a message descritiva do erro
     private final HttpStatus httpStatus; // O HttpStatus correspondente
 
     // Construtor do Enum
-    AutenticacaoErrorCode(String codigo, String mensagem, HttpStatus httpStatus) {
-        this.codigo = codigo;
-        this.mensagem = mensagem;
+    AuthenticationErrorCode(String code, String message, HttpStatus httpStatus) {
+        this.code = code;
+        this.message = message;
         this.httpStatus = httpStatus;
     }
 
     // Getters para acessar os valores do Enum
-    public String getCodigo() {
-        return codigo;
+    public String getCode() {
+        return code;
     }
 
-    public String getMensagem() {
-        return mensagem;
+    public String getMessage() {
+        return message;
     }
 
     public HttpStatus getHttpStatus() {
