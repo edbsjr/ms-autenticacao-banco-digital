@@ -27,6 +27,8 @@ public class AuthController {
     public AuthController (LoginMapper loginMapper, AuthenticateUserPort authenticateUserPort){
         this.loginMapper = loginMapper;
         this.authenticateUserPort = authenticateUserPort;
+
+
     }
 
     @PostMapping("/login")
