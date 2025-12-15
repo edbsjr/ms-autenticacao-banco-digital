@@ -3,7 +3,7 @@ package br.com.bancodigital.msautenticacao.domain.model.enums;
 public enum UserStatus {
 
     ATIVO("Ativo"),
-    BLOQUADO("Bloqueado"),
+    BLOQUEADO("Bloqueado"),
     DELETADO("Deletado");
 
     private final String description;

@@ -1,31 +1,28 @@
 package br.com.bancodigital.msautenticacao.application.service;
 
-import br.com.bancodigital.msautenticacao.adapter.in.web.security.JwtService;
+import br.com.bancodigital.msautenticacao.adapter.in.security.CustomUserDetails;
 import br.com.bancodigital.msautenticacao.application.port.in.AuthenticateUserPort;
+import br.com.bancodigital.msautenticacao.application.port.out.TokenProviderPort;
 import br.com.bancodigital.msautenticacao.application.usecase.command.LoginCommand;
 import br.com.bancodigital.msautenticacao.domain.exception.AuthenticationException;
 import br.com.bancodigital.msautenticacao.domain.exception.errorcode.AuthenticationErrorCode;
 import br.com.bancodigital.msautenticacao.domain.model.AuthenticatedUser;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class AuthService implements AuthenticateUserPort {
 
     private final AuthenticationManager authenticationManager;
-    private final JwtService jwtService;
-
-    public AuthService (AuthenticationManager authenticationManager, JwtService jwtServiceService){
-        this.authenticationManager = authenticationManager;
-        this.jwtService = jwtServiceService;
-    }
+    private final TokenProviderPort tokenProviderPort;
 
     @Override
     public AuthenticatedUser authenticate(LoginCommand loginCommand) {
@@ -35,7 +32,7 @@ public class AuthService implements AuthenticateUserPort {
                     new UsernamePasswordAuthenticationToken(loginCommand.username(), loginCommand.password())
             );
 
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
             // Extrai o primeiro role (se houver)
             String primaryRole = userDetails.getAuthorities().stream()
@@ -43,7 +40,7 @@ public class AuthService implements AuthenticateUserPort {
                     .findFirst()
                     .orElse(null);
 
-            String token = jwtService.generateToken(userDetails);
+            String token = tokenProviderPort.generateToken(userDetails);
             log.info("Token JWT gerado para o usuário: {}", userDetails.getUsername());
 
             // Retorna o modelo de domínio AuthenticatedUser

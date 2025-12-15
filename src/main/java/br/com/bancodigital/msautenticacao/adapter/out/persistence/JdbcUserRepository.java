@@ -2,6 +2,7 @@ package br.com.bancodigital.msautenticacao.adapter.out.persistence;
 
 import br.com.bancodigital.msautenticacao.application.port.out.UserRepositoryPort;
 import br.com.bancodigital.msautenticacao.domain.model.User;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -16,15 +17,10 @@ import java.util.Optional;
 
 @Slf4j
 @Repository
+@RequiredArgsConstructor
 public class JdbcUserRepository implements UserRepositoryPort {
 
     private final JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    public JdbcUserRepository(JdbcTemplate jdcbTemplate)
-    {
-        this.jdbcTemplate = jdcbTemplate;
-    }
 
     @Override
     public User save(User user) {
@@ -92,7 +88,6 @@ public class JdbcUserRepository implements UserRepositoryPort {
         log.debug("Iniciando consulta SQL para o usuario: {}", login);
         String sql = "SELECT id, login, password_hash, role, status, created_at," +
                 " last_access_date FROM users WHERE login = ?";
-        log.info("Iniciando a busca pelo usuario {}", login);
 
         // ABORDAGEM MODERNA:
         // 1. .query() retorna uma List<User> (vazia ou com elementos), sem lançar erro.

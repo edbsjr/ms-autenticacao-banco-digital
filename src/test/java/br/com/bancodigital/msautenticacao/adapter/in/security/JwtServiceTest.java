@@ -1,8 +1,7 @@
-package br.com.bancodigital.msautenticacao.adapter.in.web.security;
+package br.com.bancodigital.msautenticacao.adapter.in.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

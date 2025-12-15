@@ -1,9 +1,8 @@
 package br.com.bancodigital.msautenticacao.application.service;
 
-import br.com.bancodigital.msautenticacao.adapter.in.web.security.JwtService;
+import br.com.bancodigital.msautenticacao.adapter.in.security.JwtService;
 import br.com.bancodigital.msautenticacao.application.usecase.command.LoginCommand;
 import br.com.bancodigital.msautenticacao.domain.exception.AuthenticationException;
-import br.com.bancodigital.msautenticacao.application.service.AuthService;
 import br.com.bancodigital.msautenticacao.domain.exception.errorcode.AuthenticationErrorCode;
 import br.com.bancodigital.msautenticacao.domain.model.AuthenticatedUser;
 
