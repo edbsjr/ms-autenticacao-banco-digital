@@ -1,7 +1,7 @@
 package br.com.bancodigital.msautenticacao.application.service;
 
 import br.com.bancodigital.msautenticacao.adapter.in.security.CustomUserDetails;
-import br.com.bancodigital.msautenticacao.application.port.in.AuthenticateUserPort;
+import br.com.bancodigital.msautenticacao.application.port.in.LoginUseCase;
 import br.com.bancodigital.msautenticacao.application.port.out.TokenProviderPort;
 import br.com.bancodigital.msautenticacao.application.usecase.command.LoginCommand;
 import br.com.bancodigital.msautenticacao.domain.exception.AuthenticationException;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AuthService implements AuthenticateUserPort {
+public class AuthService implements LoginUseCase {
 
     private final AuthenticationManager authenticationManager;
     private final TokenProviderPort tokenProviderPort;

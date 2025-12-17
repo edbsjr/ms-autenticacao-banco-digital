@@ -3,7 +3,7 @@ package br.com.bancodigital.msautenticacao.adapter.in.web.controller;
 import br.com.bancodigital.msautenticacao.adapter.in.web.dto.LoginRequest;
 import br.com.bancodigital.msautenticacao.adapter.in.web.dto.LoginResponse;
 import br.com.bancodigital.msautenticacao.adapter.in.web.mapper.LoginMapper;
-import br.com.bancodigital.msautenticacao.application.port.in.AuthenticateUserPort;
+import br.com.bancodigital.msautenticacao.application.port.in.LoginUseCase;
 import br.com.bancodigital.msautenticacao.application.usecase.command.LoginCommand;
 import br.com.bancodigital.msautenticacao.domain.model.AuthenticatedUser;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,8 +15,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
-import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;  // Para asserções como assertEquals, assertNotNull, assertThrows
 import static org.mockito.Mockito.*; // Para mocks como when, verif
@@ -31,7 +29,7 @@ public class AuthControllerTest {
     private LoginMapper loginMapper; //ISSO DEVE SAIR?
 
     @Mock
-    private AuthenticateUserPort authenticateUserPort;
+    private LoginUseCase loginUseCase;
 
     @InjectMocks
     private AuthController authController;
@@ -56,7 +54,7 @@ public class AuthControllerTest {
 
         //Configura os Mocks que serão usados
         when(loginMapper.toLoginCommand(loginRequest)).thenReturn(loginCommand);
-        when(authenticateUserPort.authenticate(loginCommand)).thenReturn(authenticatedUser);
+        when(loginUseCase.authenticate(loginCommand)).thenReturn(authenticatedUser);
         when(loginMapper.toLoginResponse(authenticatedUser)).thenReturn(loginResponse);
 
         //Chama o metodo para ser testado
@@ -69,7 +67,7 @@ public class AuthControllerTest {
 
         //Verificação de comportamento
         verify(loginMapper, times(1)).toLoginCommand(loginRequest);
-        verify(authenticateUserPort, times(1)).authenticate(loginCommand);
+        verify(loginUseCase, times(1)).authenticate(loginCommand);
         verify(loginMapper, times(1)).toLoginResponse(authenticatedUser);
 
     }
