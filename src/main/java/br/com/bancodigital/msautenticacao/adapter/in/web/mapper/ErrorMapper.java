@@ -4,7 +4,10 @@ import br.com.bancodigital.msautenticacao.adapter.in.web.dto.ErrorResponse;
 import br.com.bancodigital.msautenticacao.domain.exception.errorcode.AuthenticationErrorCode;
 import org.springframework.http.HttpStatus;
 
+
 public class ErrorMapper {
+
+    private ErrorMapper() {}
 
     public static ErrorResponse fromErrorCode(AuthenticationErrorCode errorCode){
         return new ErrorResponse(

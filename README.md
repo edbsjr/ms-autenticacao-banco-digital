@@ -45,7 +45,7 @@ src/main/java/br/com/bancodigital/msautenticacao/
 │   └── exception/
 │   └── port/
 │       └── in/
-│           └── AuthenticateUserPort.java
+│           └── LoginUseCase.java
 │       └── out/
 │           └── UserRepositoryPort.java
 │
