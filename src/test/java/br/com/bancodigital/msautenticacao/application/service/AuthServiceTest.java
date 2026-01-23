@@ -1,11 +1,15 @@
 package br.com.bancodigital.msautenticacao.application.service;
 
-import br.com.bancodigital.msautenticacao.adapter.in.security.JwtService;
+import br.com.bancodigital.msautenticacao.adapter.in.security.CustomUserDetails;
+import br.com.bancodigital.msautenticacao.application.port.out.TokenProviderPort;
 import br.com.bancodigital.msautenticacao.application.usecase.command.LoginCommand;
 import br.com.bancodigital.msautenticacao.domain.exception.AuthenticationException;
 import br.com.bancodigital.msautenticacao.domain.exception.errorcode.AuthenticationErrorCode;
 import br.com.bancodigital.msautenticacao.domain.model.AuthenticatedUser;
 
+import br.com.bancodigital.msautenticacao.domain.model.User;
+import br.com.bancodigital.msautenticacao.domain.model.enums.UserRole;
+import br.com.bancodigital.msautenticacao.domain.model.enums.UserStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,11 +21,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;  // Para asserções como assertEquals, assertNotNull, assertThrows
 import static org.mockito.Mockito.*; // Para mocks como when, verif
@@ -35,7 +34,7 @@ public class AuthServiceTest {
     @Mock
     private AuthenticationManager authenticationManager;
     @Mock
-    private JwtService jwtService;
+    private TokenProviderPort tokenProviderPort;
 
     @InjectMocks
     private AuthService authService;
@@ -54,21 +53,22 @@ public class AuthServiceTest {
     void shouldAuthenticateUserAndGenerateTokenSucessfuly(){
         // Mocks para simular um usuário autenticado e a geração de token
         // Mock do UserDetails (representando o usuário autenticado)
-        UserDetails userDetails = new User(loginCommandSuccess.username(),
-                "encodedPassword", // A senha aqui não importa muito pois será validada pelo mock do AuthenticationManager
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_CLIENTE")));
+        User userReal = new User(1L,loginCommandSuccess.username(),
+                "encodedPassword", UserRole.CLIENTE, UserStatus.ATIVO, null, null);
+
+        CustomUserDetails customUserDetails = new CustomUserDetails(userReal);
 
         // Mock do Authentication (o objeto que AuthenticationManager retorna em sucesso)
         Authentication authenticationMock = mock(Authentication.class);
-        when(authenticationMock.getPrincipal()).thenReturn(userDetails); // Diz que o principal é o userDetails
+        when(authenticationMock.getPrincipal()).thenReturn(customUserDetails); // Diz que o principal é o userDetails
 
         // Configura o mock do AuthenticationManager para retornar o mock de Authentication
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenReturn(authenticationMock);
 
-        // Configura o mock do JwtService para retornar um token de exemplo
+        // Configuramos a PORTA para retornar o token
         String expectedToken = "mocked_jwt_token_example";
-        when(jwtService.generateToken(userDetails)).thenReturn(expectedToken);
+        when(tokenProviderPort.generateToken(customUserDetails)).thenReturn(expectedToken);
 
         // Ação: Chama o método que queremos testar
         AuthenticatedUser result = authService.authenticate(loginCommandSuccess);
@@ -81,13 +81,13 @@ public class AuthServiceTest {
 
         // Verifica se os métodos dos mocks foram chamados
         verify(authenticationManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
-        verify(jwtService, times(1)).generateToken(userDetails);
-        verifyNoMoreInteractions(authenticationManager, jwtService); // Garante que nenhum outro método foi chamado nos mocks
+        verify(tokenProviderPort, times(1)).generateToken(customUserDetails);
+        verifyNoMoreInteractions(authenticationManager, tokenProviderPort); // Garante que nenhum outro método foi chamado nos mocks
     }
 
     @Test
     @DisplayName("Deve lançar AutenticacaoException para credenciais inválidas")
-    void shouldThrowAutenticacaoExceptionForInvalidCredentials() {
+    void shouldThrowAutenticationExceptionForInvalidCredentials() {
         // 1. Cenário: Configura o mock do AuthenticationManager para lançar BadCredentialsException
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenThrow(new BadCredentialsException("Credenciais inválidas de teste"));
@@ -97,11 +97,12 @@ public class AuthServiceTest {
             authService.authenticate(loginCommandFail);
         }, "Deve lançar uma AuthenticationException");
 
-        assertEquals(AuthenticationErrorCode.USUARIO_OU_SENHA_INVALIDOS, exception.getErrorCode(), "O código de erro deve ser USUARIO_OU_SENHA_INVALIDOS.");
+        assertEquals(AuthenticationErrorCode.USUARIO_OU_SENHA_INVALIDOS, exception.getErrorCode(),
+                "O código de erro deve ser USUARIO_OU_SENHA_INVALIDOS.");
 
         // Verifica se o JwtService não foi chamado
-        verify(jwtService, never()).generateToken(any(UserDetails.class));
+        verify(tokenProviderPort, never()).generateToken(any(CustomUserDetails.class));
         verify(authenticationManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
-        verifyNoMoreInteractions(authenticationManager, jwtService);
+        verifyNoMoreInteractions(authenticationManager, tokenProviderPort);
     }
 }

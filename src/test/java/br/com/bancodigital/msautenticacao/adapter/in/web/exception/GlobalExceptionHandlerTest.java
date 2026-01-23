@@ -1,69 +1,98 @@
-/*package br.com.bancodigital.msautenticacao.adapter.in.web.exception;
+package br.com.bancodigital.msautenticacao.adapter.in.web.exception;
 
+import br.com.bancodigital.msautenticacao.adapter.in.web.exception.handler.GlobalExceptionHandler;
+import br.com.bancodigital.msautenticacao.domain.exception.AuthenticationException;
+import br.com.bancodigital.msautenticacao.domain.exception.errorcode.AuthenticationErrorCode;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ExtendWith(MockitoExtension.class)
+class GlobalExceptionHandlerTest {
 
-@SpringBootTest
-@AutoConfigureMockMvc(addFilters = false)
-@DisplayName("Global Exception Handler - Testes de Error")
-public class GlobalExceptionHandlerTest {
-
-    @Autowired
     private MockMvc mockMvc;
+
+    @InjectMocks
+    private GlobalExceptionHandler globalExceptionHandler;
+
+    @BeforeEach
+    void setUp() {
+        // Configura o ambiente isolado com o Controller Dublê e o seu Handler
+        this.mockMvc = MockMvcBuilders.standaloneSetup(new TestController())
+                .setControllerAdvice(globalExceptionHandler)
+                .build();
+    }
+
+    // --- CONTROLLER DUBLÊ (Apenas para lançar os erros) ---
+    @RestController
+    static class TestController {
+        @GetMapping("/teste/usuario-nao-encontrado")
+        public void throwUsuarioNaoEncontrado() {
+            throw new AuthenticationException(AuthenticationErrorCode.USUARIO_NAO_ENCONTRADO);
+        }
+
+        @GetMapping("/teste/credenciais-invalidas")
+        public void throwCredenciaisInvalidas() {
+            throw new AuthenticationException(AuthenticationErrorCode.USUARIO_OU_SENHA_INVALIDOS);
+        }
+
+        @GetMapping("/teste/token-expirado")
+        public void throwTokenExpirado() {
+            // Supondo que você tenha esse erro mapeado no Enum ou uma Exception específica
+            throw new AuthenticationException(AuthenticationErrorCode.TOKEN_EXPIRADO);
+        }
+
+        @GetMapping("/teste/erro-generico")
+        public void throwGenericException() {
+            throw new RuntimeException("Erro inesperado simulado");
+        }
+    }
+
+    // --- SEUS TESTES (Adaptados para chamar as rotas do Dublê) ---
 
     @Test
     @DisplayName("Deve retornar 404 NOT FOUND para USUARIO_NAO_ENCONTRADO")
     void shouldReturn404ForUsuarioNaoEncontrado() throws Exception {
-        mockMvc.perform(get("/teste-erros/disparar-excecao?tipoErro=usuarioNaoEncontrado"))
-                .andExpect(status().isNotFound()) // Verifica o status HTTP
-                .andExpect(jsonPath("$.code").value("AUTH-009")) // Verifica o código do erro no JSON
-                .andExpect(jsonPath("$.message").value("O usuário especificado não foi encontrado.")) // Verifica a mensagem
-                .andExpect(jsonPath("$.httpStatus").value(404)); // Verifica o status HTTP no corpo JSON
+        mockMvc.perform(get("/teste/usuario-nao-encontrado"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("AUTH-009")) // Confirme se o código no Enum é esse mesmo
+                .andExpect(jsonPath("$.httpStatus").value(404));
     }
 
     @Test
     @DisplayName("Deve retornar 400 BAD REQUEST para USUARIO_OU_SENHA_INVALIDOS")
     void shouldReturn400ForUsuarioOuSenhaInvalidos() throws Exception {
-        mockMvc.perform(get("/teste-erros/disparar-excecao?tipoErro=senhaInvalida"))
-                .andExpect(status().isBadRequest())
+        mockMvc.perform(get("/teste/credenciais-invalidas"))
+                .andExpect(status().isBadRequest()) // Ou isUnprocessableEntity() dependendo da sua config
                 .andExpect(jsonPath("$.code").value("AUTH-001"))
-                .andExpect(jsonPath("$.message").value("Usuário ou senha inválidos. Verifique suas credenciais."))
                 .andExpect(jsonPath("$.httpStatus").value(400));
     }
 
     @Test
     @DisplayName("Deve retornar 401 UNAUTHORIZED para TOKEN_EXPIRADO")
     void shouldReturn401ForTokenExpirado() throws Exception {
-        mockMvc.perform(get("/teste-erros/disparar-excecao?tipoErro=tokenExpirado"))
+        mockMvc.perform(get("/teste/token-expirado"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.code").value("AUTH-007"))
-                .andExpect(jsonPath("$.message").value("Token de autenticação expirado."))
                 .andExpect(jsonPath("$.httpStatus").value(401));
     }
 
-    // --- Cenário 2: Testando Exceções Não Mapeadas (Fallback) ---
-
     @Test
-    @DisplayName("Deve retornar 500 INTERNAL SERVER ERROR para exceções não mapeadas")
-    void shouldReturn500ForUnhandledExceptions() throws Exception {
-        // Lança uma RuntimeException genérica para ver como o Spring (ResponseEntityExceptionHandler) lida
-        mockMvc.perform(get("/teste-erros/disparar-excecao?tipoErro=erroGenerico"))
+    @DisplayName("Deve retornar 500 INTERNAL SERVER ERROR para exceções genéricas")
+    void shouldReturn500ForGenericException() throws Exception {
+        mockMvc.perform(get("/teste/erro-generico"))
                 .andExpect(status().isInternalServerError())
-                // O corpo do erro 500 padrão do Spring pode variar, então verificar a mensagem exata pode ser difícil.
-                // Mas o status 500 é o mais importante para este teste.
-                // Se você adicionar um @ExceptionHandler(Exception.class) no seu GlobalExceptionHandler,
-                // você pode personalizar essa resposta e testar o conteúdo do JSON também.
-                .andExpect(jsonPath("$.httpStatus").value(500)); // O status no corpo padrão do Spring é 'status'
+                .andExpect(jsonPath("$.httpStatus").value(500));
     }
-
 }
-*/

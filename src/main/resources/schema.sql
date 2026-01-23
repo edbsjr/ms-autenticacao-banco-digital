@@ -5,7 +5,7 @@ CREATE TABLE users(
     login VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     role VARCHAR(50) NOT NULL CHECK(role IN('CLIENTE', 'GERENTE','ADMIN')),
-    status VARCHAR(50) NOT NULL CHECK(status IN('ativo', 'bloqueado', 'deletado')),
+    status VARCHAR(50) NOT NULL CHECK(status IN('ATIVO', 'BLOQUEADO', 'DELETADO')),
     created_at TIMESTAMP NOT NULL,
     last_access_date TIMESTAMP
     );

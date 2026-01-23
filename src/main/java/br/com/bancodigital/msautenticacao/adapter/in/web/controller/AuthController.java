@@ -6,7 +6,7 @@ import br.com.bancodigital.msautenticacao.adapter.in.web.dto.RegisterRequest;
 import br.com.bancodigital.msautenticacao.adapter.in.web.mapper.LoginMapper;
 import br.com.bancodigital.msautenticacao.adapter.in.web.mapper.RegisterMapper;
 import br.com.bancodigital.msautenticacao.application.port.in.LoginUseCase;
-import br.com.bancodigital.msautenticacao.application.port.in.RegisterUserUseCasePort;
+import br.com.bancodigital.msautenticacao.application.port.in.RegisterUserUseCase;
 import br.com.bancodigital.msautenticacao.application.usecase.command.LoginCommand;
 import br.com.bancodigital.msautenticacao.application.usecase.command.RegisterUserCommand;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final LoginMapper loginMapper;
-    private final RegisterUserUseCasePort registerUserUseCasePort;
+    private final RegisterUserUseCase registerUserUseCase;
     private final RegisterMapper registerMapper;
     private final LoginUseCase loginUseCase;
 
@@ -63,7 +63,7 @@ public class AuthController {
 
         RegisterUserCommand registerCommand = registerMapper.toRegisterCommand(registerRequest);
 
-        registerUserUseCasePort.register(registerCommand);
+        registerUserUseCase.register(registerCommand);
 
         log.info("Registro bem-sucedido");
         return ResponseEntity.status(HttpStatus.CREATED).build();

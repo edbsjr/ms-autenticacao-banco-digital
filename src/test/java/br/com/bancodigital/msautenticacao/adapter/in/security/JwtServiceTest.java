@@ -1,21 +1,26 @@
 package br.com.bancodigital.msautenticacao.adapter.in.security;
 
+import br.com.bancodigital.msautenticacao.adapter.out.security.JwtService;
+import br.com.bancodigital.msautenticacao.domain.model.User;
+import br.com.bancodigital.msautenticacao.domain.model.enums.UserRole;
+import br.com.bancodigital.msautenticacao.domain.model.enums.UserStatus;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.User; // Importação necessária
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.Collections;
+import javax.crypto.SecretKey;
+import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class JwtServiceTest {
@@ -23,46 +28,67 @@ public class JwtServiceTest {
     @InjectMocks
     private JwtService jwtService;
 
-    UserDetails userDetails;
+    private CustomUserDetails customUserDetails;
 
+    // Usamos uma chave válida de 256 bits (HMAC-SHA256)
+    private final String SECRET_KEY = "404E635266556A586E3272357538782F413F4428472B4B6250655368566D5971";
+    private final long EXPIRATION_TIME = 3600000L; // 1 hora
 
     @BeforeEach
     void SetUp(){
-        userDetails = new User("UsuarioTeste","SenhaTeste", Collections.emptyList());
+        // Prepara os dados reais
+        User userReal = new User(1L, "UsuarioTeste", "hash", UserRole.CLIENTE, UserStatus.ATIVO, null, null);
+        customUserDetails = new CustomUserDetails(userReal);
 
-        // Injetando valores para os campos anotados com @Value
-        ReflectionTestUtils.setField(jwtService, "secretKey", "404E635266556A586E3272357538782F413F4428472B4B6250655368566D5971");
-        ReflectionTestUtils.setField(jwtService, "jwtExpiration", 3600000L); // 1 hora
+        // Injeta os valores das variáveis @Value
+        ReflectionTestUtils.setField(jwtService, "secretKey", SECRET_KEY);
+        ReflectionTestUtils.setField(jwtService, "jwtExpiration", EXPIRATION_TIME);
     }
 
     @Test
-    @DisplayName("Deve gerar o token JWT e ter o subject e data de expiração corretos")
-    void shouldGenerateTokenJwtAndReturnCorrectClaims() {
-        //Gera o token usando o JwtService
-        String token = jwtService.generateToken(userDetails);
+    @DisplayName("Deve gerar token contendo ID, Role e Expiração corretos")
+    void shouldGenerateTokenWithCorrectClaims() {
+        // 1. AÇÃO: Gera o token
+        String token = jwtService.generateToken(customUserDetails);
+
+        // 2. VERIFICAÇÃO
         assertNotNull(token);
 
-        // 2. Verificação 1: O token deve conter o subject correto
-        String subject = Jwts.parser()
-                .setSigningKey(Decoders.BASE64.decode("404E635266556A586E3272357538782F413F4428472B4B6250655368566D5971"))
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
-        assertEquals("UsuarioTeste", subject, "O subject do token deve ser o username.");
+        // Recria a chave para decodificar
+        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+        SecretKey key = Keys.hmacShaKeyFor(keyBytes);
 
-        // 3. Verificação 2: O token deve expirar no tempo correto
+        // Abre o token para inspecionar
         Claims claims = Jwts.parser()
-                .setSigningKey(Decoders.BASE64.decode("404E635266556A586E3272357538782F413F4428472B4B6250655368566D5971"))
+                .verifyWith(key)
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
-        long expirationTime = claims.getExpiration().getTime();
-        long issuedAtTime = claims.getIssuedAt().getTime();
-        long expectedExpirationTime = issuedAtTime + 3600000L;
-        assertEquals(expectedExpirationTime, expirationTime, 100, "A data de expiração deve ser 1 hora após a emissão.");
+                .parseSignedClaims(token)
+                .getPayload();
 
+        // 3. ASSERÇÕES
+        // Valida Subject (Username)
+        assertEquals("UsuarioTeste", claims.getSubject());
+
+        // Valida Claim Extra: ID
+        assertEquals(1L, ((Number) claims.get("id")).longValue());
+
+        // Valida Claim Extra: Role
+        assertEquals("ROLE_CLIENTE", claims.get("role"));
+
+        // Valida Expiração
+        Date expiration = claims.getExpiration();
+        assertNotNull(expiration);
+
+        // Verifica se expira no futuro (margem de segurança de alguns segundos)
+        assertTrue(expiration.after(new Date()));
     }
 
+    @Test
+    @DisplayName("Deve lançar exceção quando o UserDetails for Nulo")
+    void shouldThrowExceptionWhenUserDetailsIsNull(){
 
+        assertThrows(NullPointerException.class, () -> {
+            jwtService.generateToken(null);
+        });
+    }
 }

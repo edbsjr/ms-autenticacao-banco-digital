@@ -1,6 +1,6 @@
 package br.com.bancodigital.msautenticacao.application.service;
 
-import br.com.bancodigital.msautenticacao.application.port.in.RegisterUserUseCasePort;
+import br.com.bancodigital.msautenticacao.application.port.in.RegisterUserUseCase;
 import br.com.bancodigital.msautenticacao.application.port.out.UserRepositoryPort;
 import br.com.bancodigital.msautenticacao.application.usecase.command.RegisterUserCommand;
 import br.com.bancodigital.msautenticacao.domain.exception.AuthenticationException;
@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class RegisterUserService implements RegisterUserUseCasePort {
+public class RegisterUserService implements RegisterUserUseCase {
 
     private final UserRepositoryPort userRepositoryPort;
     private final PasswordEncoder passwordEncoder;

@@ -2,6 +2,8 @@ package br.com.bancodigital.msautenticacao.adapter.in.security;
 
 import br.com.bancodigital.msautenticacao.domain.model.User;
 import br.com.bancodigital.msautenticacao.domain.model.enums.UserStatus;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,6 +11,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
+@Getter              // Facilita acessar o objeto 'user' interno se precisar
+@EqualsAndHashCode
 public class CustomUserDetails implements UserDetails {
 
     private final User user;
