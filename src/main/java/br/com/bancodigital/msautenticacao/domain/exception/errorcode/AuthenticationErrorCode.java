@@ -14,6 +14,7 @@ public enum AuthenticationErrorCode {
 
 
     // --- Códigos para Erros de Autenticação/Autorização (HTTP 401 Unauthorized / 403 Forbidden) ---
+
     TOKEN_AUSENTE("AUTH-005", "Token de autenticação não fornecido.", HttpStatus.UNAUTHORIZED),
     TOKEN_INVALIDO("AUTH-006", "Token de autenticação inválido.", HttpStatus.UNAUTHORIZED),
     TOKEN_EXPIRADO("AUTH-007", "Token de autenticação expirado.", HttpStatus.UNAUTHORIZED),

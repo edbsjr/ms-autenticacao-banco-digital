@@ -127,9 +127,15 @@ Os testes são configurados com JUnit 5. Para rodar todos os testes:
 ```bash
 mvn test
 ```
-## 🔑 Endpoints da API
+## 🔑 Endpoints da API - 📖 Documentação Interativa (Swagger)
 
-> ⚠️ Esta seção será atualizada à medida que novos endpoints forem implementados.
+A API utiliza **Swagger/OpenAPI 3** para fornecer uma documentação interativa e fácil de consumir. Com a aplicação rodando, você pode testar todos os endpoints diretamente pelo navegador.
+
+🔗 **Acesse aqui:** [Swagger UI - Ms-Autenticacao](http://localhost:8080/swagger-ui/index.html)
+
+> **Dica:** Através dessa interface, é possível simular requisições de Login e Registro sem a necessidade de ferramentas externas como Postman ou Insomnia.
+
+[ADICIONAR PRINT DA TELA AQUI MOSTRANDO O SWAGGER PRONTO]
 
 ### 🔐 Autenticação
 
