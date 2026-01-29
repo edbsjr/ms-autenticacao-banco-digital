@@ -69,205 +69,39 @@ qualidade e confiabilidade para o projeto.
 
 O projeto está organizado em camadas claras, seguindo a arquitetura hexagonal para isolar a lógica de negócio 
 (domínio) da infraestrutura e dos frameworks externos.
-+---src
-|   +---main
-|   |   +---java
-|   |   |   \---br
-|   |   |       \---com
-|   |   |           \---bancodigital
-|   |   |               \---msautenticacao
-|   |   |                   |   MsAutenticacaoApplication.java
-|   |   |                   |
-|   |   |                   
-|   |   |                   |
-|   |   |                   +---application
-|   |   |                   |   +---port
-|   |   |                   |   |   +---in
-|   |   |                   |   |   |       LoginUseCase.java
-|   |   |                   |   |   |       RegisterUserUseCase.java
-|   |   |                   |   |   |
-|   |   |                   |   |   \---out
-|   |   |                   |   |           TokenProviderPort.java
-|   |   |                   |   |           UserRepositoryPort.java
-|   |   |                   |   |
-|   |   |                   |   +---service
-|   |   |                   |   |       AuthService.java
-|   |   |                   |   |       RegisterUserService.java
-|   |   |                   |   |
-|   |   |                   |   \---usecase
-|   |   |                   |       \---command
-|   |   |                   |               LoginCommand.java
-|   |   |                   |               RegisterUserCommand.java
-|   |   |                   |
-|   |   |                   \---domain
-|   |   |                       +---exception
-|   |   |                       |   |   AuthenticationException.java
-|   |   |                       |   |
-|   |   |                       |   \---errorcode
-|   |   |                       |           AuthenticationErrorCode.java
-|   |   |                       |
-|   |   |                       \---model
-|   |   |                           |   AuthenticatedUser.java
-|   |   |                           |   User.java
-|   |   |                           |
-|   |   |                           \---enums
-|   |   |                                   UserRole.java
-|   |   |                                   UserStatus.java
-|   |   |
-|   |   \---resources
-|   |       |   application.properties
-|   |       |   data.sql
-|   |       |   logback.xml
-|   |       |   schema.sql
-|   |       |
-|   |       +---static
-|   |       \---templates
-|   \---test
-|       \---java
-|           \---br
-|               \---com
-|                   \---bancodigital
-|                       \---msautenticacao
-|                           |   MsAutenticacaoApplicationTests.java
-|                           |
-|                           +---adapter
-|                           |   +---in
-|                           |   |   +---security
-|                           |   |   |       JwtServiceTest.java
-|                           |   |   |
-|                           |   |   \---web
-|                           |   |       +---controller
-|                           |   |       |       AuthControllerTest.java
-|                           |   |       |
-|                           |   |       \---exception
-|                           |   |               GlobalExceptionHandlerTest.java
-|                           |   |
-|                           |   \---out
-|                           |       \---persistence
-|                           |               JdbcUserRepositoryTest.java
-|                           |
-|                           \---application
-|                               \---service
-|                                       AuthServiceTest.java
-|                                       RegisterUserServiceTest.java
 
 ```bash
-src/main/java/br/com/bancodigital/msautenticacao/
-+---src
-|   +---main
-|   |   +---java
-|   |   |   \---br
-|   |   |       \---com
-|   |   |           \---bancodigital
-|   |   |               \---msautenticacao
-|   |   |                   |   MsAutenticacaoApplication.java
-|   |   |                   |
-|   |   |                   +---adapter
-|   |   |                   |   +---in
-|   |   |                   |   |   +---security
-|   |   |                   |   |   |       CustomUserDetails.java
-|   |   |                   |   |   |       CustomUserDetailsService.java
-|   |   |                   |   |   |       SecurityConfig.java
-|   |   |                   |   |   |
-|   |   |                   |   |   \---web
-|   |   |                   |   |       +---controller
-|   |   |                   |   |       |       AuthController.java
-|   |   |                   |   |       |
-|   |   |                   |   |       +---dto
-|   |   |                   |   |       |       ErrorResponse.java
-|   |   |                   |   |       |       LoginRequest.java
-|   |   |                   |   |       |       LoginResponse.java
-|   |   |                   |   |       |       RegisterRequest.java
-|   |   |                   |   |       |
-|   |   |                   |   |       +---exception
-|   |   |                   |   |       |   \---handler
-|   |   |                   |   |       |           GlobalExceptionHandler.java
-|   |   |                   |   |       |
-|   |   |                   |   |       \---mapper
-|   |   |                   |   |               ErrorMapper.java
-|   |   |                   |   |               LoginMapper.java
-|   |   |                   |   |               RegisterMapper.java
-|   |   |                   |   |
-|   |   |                   |   \---out
-|   |   |                   |       +---persistence
-|   |   |                   |       |       JdbcUserRepository.java
-|   |   |                   |       |       UserRowMapper.java
-|   |   |                   |       |
-|   |   |                   |       \---security
-|   |   |                   |               JwtService.java
-|   |   |                   |
-|   |   |                   +---application
-|   |   |                   |   +---port
-|   |   |                   |   |   +---in
-|   |   |                   |   |   |       LoginUseCase.java
-|   |   |                   |   |   |       RegisterUserUseCase.java
-|   |   |                   |   |   |
-|   |   |                   |   |   \---out
-|   |   |                   |   |           TokenProviderPort.java
-|   |   |                   |   |           UserRepositoryPort.java
-|   |   |                   |   |
-|   |   |                   |   +---service
-|   |   |                   |   |       AuthService.java
-|   |   |                   |   |       RegisterUserService.java
-|   |   |                   |   |
-|   |   |                   |   \---usecase
-|   |   |                   |       \---command
-|   |   |                   |               LoginCommand.java
-|   |   |                   |               RegisterUserCommand.java
-|   |   |                   |
-|   |   |                   \---domain
-|   |   |                       +---exception
-|   |   |                       |   |   AuthenticationException.java
-|   |   |                       |   |
-|   |   |                       |   \---errorcode
-|   |   |                       |           AuthenticationErrorCode.java
-|   |   |                       |
-|   |   |                       \---model
-|   |   |                           |   AuthenticatedUser.java
-|   |   |                           |   User.java
-|   |   |                           |
-|   |   |                           \---enums
-|   |   |                                   UserRole.java
-|   |   |                                   UserStatus.java
-|   |   |
-|   |   \---resources
-|   |       |   application.properties
-|   |       |   data.sql
-|   |       |   logback.xml
-|   |       |   schema.sql
-|   |       |
-|   |       +---static
-|   |       \---templates
-|   \---test
-|       \---java
-|           \---br
-|               \---com
-|                   \---bancodigital
-|                       \---msautenticacao
-|                           |   MsAutenticacaoApplicationTests.java
-|                           |
-|                           +---adapter
-|                           |   +---in
-|                           |   |   +---security
-|                           |   |   |       JwtServiceTest.java
-|                           |   |   |
-|                           |   |   \---web
-|                           |   |       +---controller
-|                           |   |       |       AuthControllerTest.java
-|                           |   |       |
-|                           |   |       \---exception
-|                           |   |               GlobalExceptionHandlerTest.java
-|                           |   |
-|                           |   \---out
-|                           |       \---persistence
-|                           |               JdbcUserRepositoryTest.java
-|                           |
-|                           \---application
-|                               \---service
-|                                       AuthServiceTest.java
-|                                       RegisterUserServiceTest.java
-|
-
+src
+├── main
+│   ├── java
+│   │   └── br/com/bancodigital/msautenticacao
+│   │       ├── MsAutenticacaoApplication.java
+│   │       ├── adapter
+│   │       │   ├── in
+│   │       │   │   ├── security
+│   │       │   │   └── web
+│   │       │   └── out
+│   │       │       ├── persistence
+│   │       │       └── security
+│   │       ├── application
+│   │       │   ├── port
+│   │       │   │   ├── in
+│   │       │   │   └── out
+│   │       │   ├── service
+│   │       │   └── usecase
+│   │       └── domain
+│   │           ├── exception
+│   │           └── model
+│   └── resources
+│       ├── application.properties
+│       ├── data.sql
+│       ├── schema.sql
+│       └── logback.xml
+└── test
+    └── java
+        └── br/com/bancodigital/msautenticacao
+            ├── adapter
+            └── application
 ```
 
 ---
