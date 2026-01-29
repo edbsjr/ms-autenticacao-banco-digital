@@ -536,8 +536,6 @@ rodando, você pode testar todos os endpoints diretamente pelo navegador.
 > **Dica:** Através dessa interface, é possível simular requisições de Login e Registro sem a necessidade de ferramentas
 > externas como Postman ou Insomnia.
 
-[ADICIONAR PRINT DA TELA AQUI MOSTRANDO O SWAGGER PRONTO]
-
 ### 🔐 Autenticação
 
 **`POST /auth/register`**
@@ -578,7 +576,7 @@ Este é um projeto de portfólio para fins de estudo. Sinta-se à vontade para a
 
 ## ✉️ Contato
 
-Eduardo Batista - [Seu LinkedIn] - [Seu E-mail]
+Eduardo Batista - [LinkedIN](https://www.linkedin.com/in/eduardo-batista-216333189/)
 
 ---
 
