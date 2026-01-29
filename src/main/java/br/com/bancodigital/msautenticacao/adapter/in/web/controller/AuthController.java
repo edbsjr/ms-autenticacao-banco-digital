@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -40,14 +41,14 @@ public class AuthController {
             description = "Recebe as credenciais e retorna um token JWT válido para acesso aos demais recursos do sistema."
     )
     @ApiResponse(responseCode = "200", description = "Autenticação realizada com sucesso")
-    @ApiResponse(responseCode = "400", description = "Usuário ou senha inválidos. Verifique suas credenciais.", content = @Content)
+    @ApiResponse(responseCode = "401", description = "Usuário ou senha inválidos. Verifique suas credenciais.", content = @Content)
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest){
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest loginRequest){
         log.info("Requisição POST /auth/login recebida, iniciando conversão da request em command");
         if (log.isDebugEnabled()) {
             // Criando uma cópia segura para log
             String safeRequestPayload = String.format("{ \"username\": \"%s\", \"password\": \"[REDACTED]\" }",
-                    loginRequest.getUsername());
+                    loginRequest.username());
             log.debug("Payload da requisição de login: {}", safeRequestPayload);
         }
 
@@ -66,7 +67,7 @@ public class AuthController {
     @ApiResponse(responseCode = "201", description = "Usuário registrado com sucesso")
     @ApiResponse(responseCode = "409", description = "Já existe um usuário com essas credenciais.")
     @PostMapping("/register")
-    public ResponseEntity<Void> register(@RequestBody RegisterRequest registerRequest){
+    public ResponseEntity<Void> register(@Valid @RequestBody RegisterRequest registerRequest){
         log.info("Requisição POST /auth/register recebida, iniciando converção da request em command");
         if (log.isDebugEnabled()) {
             // Criando uma cópia segura para log

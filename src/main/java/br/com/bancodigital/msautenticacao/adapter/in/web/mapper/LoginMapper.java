@@ -11,7 +11,7 @@ public class LoginMapper {
 
     //Converte LoginRequest em LoginCommand
     public LoginCommand toLoginCommand (LoginRequest loginRequest){
-        return new LoginCommand(loginRequest.getUsername(), loginRequest.getPassword());
+        return new LoginCommand(loginRequest.username(), loginRequest.password());
     }
 
     //Converte AuthenticatedUser em LoginResponse

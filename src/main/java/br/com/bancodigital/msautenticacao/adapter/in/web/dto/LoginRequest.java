@@ -1,25 +1,17 @@
 package br.com.bancodigital.msautenticacao.adapter.in.web.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
-public class LoginRequest {
+public record LoginRequest(
+        @Schema(example = "cliente01", description = "O identificador do usuário")
+        @NotBlank(message = "O login é obrigatório")
+        String username,
 
-    @Schema(example = "cliente01", description = "O identificador do usuário")
-    private String username;
-    @Schema(example = "senhaCliente123", description = "A senha em texto plano")
-    private String password;
+        @Schema(example = "senhaCliente123", description = "A senha em texto plano")
+        @NotBlank(message = "A senha é obrigatória")
+        String password
+) {}
 
-    //Constructors
-    public LoginRequest() {}
-    public LoginRequest(String username, String password){
-        this.username = username;
-        this.password = password;
-    }
-
-    //Getters
-    public String getUsername(){return username;}
-    public String getPassword(){return password;}
-    //Setters
-    public void setUsername(String username){this.username = username;}
-    public void setPassword(String password){this.password = password;}
-}
